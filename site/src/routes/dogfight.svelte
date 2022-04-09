@@ -44,14 +44,21 @@
 		{#each players as player}
 			{#if player.health > 0 && player.energy > 0}
 				{#if Math.abs(player["kinematics"]["location"][0]) < 2000.0 && Math.abs(player["kinematics"]["location"][1]) < 2000.0}
-				<div
-					class="absolute bg-slate-600 rounded-full"
-					style="height:5px;width:5px;left:calc({(player['kinematics']['location'][0] *
+				<div 
+					class="dot absolute bg-slate-600 rounded-full"
+					style="height:10px;width:10px;left:calc({(player['kinematics']['location'][0] *
 						(remToPixels(0.375) + vhToPixels(32.0))) /
-						2000.0}px + 32vh + 0.375rem);top:calc({(player['kinematics']['location'][1] *
+						2000.0}px + 32vh + 0.375rem);top:calc({-(player['kinematics']['location'][1] *
 						(remToPixels(0.375) + vhToPixels(32.0))) /
-						2000.0}px + 32vh + 0.375rem);"
-				/>
+						2000.0}px + 32vh + 0.375rem);">
+                    <div class="dotinfo box-content p-3 bg-slate-400 rounded-lg" style="width:256px;">
+                        <p><i>{player['name']}</i></p>
+                        <br>
+                        <p>Health: {player['health']}</p>
+                        <p>Energy: {player['energy']}</p>
+                        <p>Position: ({player['kinematics']['location'][0].toFixed(2)}, {player['kinematics']['location'][1].toFixed(2)})</p>
+                    </div>
+                </div>
                 {/if}
 			{/if}
 		{/each}
@@ -67,3 +74,17 @@
 		/>
 	</form>
 </section>
+
+<style>
+.dot .dotinfo {
+    visibility: hidden;
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    z-index: 1;
+}
+
+.dot:hover .dotinfo {
+    visibility: visible;
+}
+</style>
