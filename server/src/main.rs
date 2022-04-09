@@ -5,9 +5,9 @@
 // use serde::{Deserialize, Serialize};
 // use tokio::sync::Mutex;
 
+use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, convert::Infallible, sync::Arc};
 use tokio::sync::{mpsc, Mutex};
-use tokio::time::Duration;
 use warp::{ws::Message, Filter, Rejection, Reply};
 
 mod entity;
@@ -36,19 +36,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .and_then(ws_handler);
 
     let routes = ws_route.with(warp::cors().allow_any_origin());
+    let posts;
 
     // testing
     unsafe {
         tokio::spawn(GAME.physics(0.02, clients.clone()));
 
-        let _ = warp::path!("spawn" / String)
-            .and(warp::post())
-            .and_then(|x: String| GAME.initialize_player(x.to_string()));
+        posts = warp::post()
+            .and(json_body())
+            .and_then(|item: Item| GAME.initialize_player(item.name.to_string()));
     }
 
     // Start warp service
     println!("Starting server");
-    warp::serve(routes).run(([127, 0, 0, 1], 8000)).await;
+    tokio::join!(
+        warp::serve(routes).run(([127, 0, 0, 1], 8000)),
+        warp::serve(posts).run(([127, 0, 0, 1], 9000))
+    );
 
     Ok(())
 }
@@ -59,7 +63,11 @@ pub struct Client {
 }
 
 type Clients = Arc<Mutex<HashMap<String, Client>>>;
-type Data = Arc<Mutex<String>>;
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+struct Item {
+    name: String,
+}
 
 pub async fn ws_handler(ws: warp::ws::Ws, clients: Clients) -> Result<impl Reply, Rejection> {
     println!("ws_handler");
@@ -68,4 +76,8 @@ pub async fn ws_handler(ws: warp::ws::Ws, clients: Clients) -> Result<impl Reply
 
 fn with_clients(clients: Clients) -> impl Filter<Extract = (Clients,), Error = Infallible> + Clone {
     warp::any().map(move || clients.clone())
+}
+
+fn json_body() -> impl Filter<Extract = (Item,), Error = Rejection> + Clone {
+    warp::body::content_length_limit(1024 * 16).and(warp::body::json())
 }

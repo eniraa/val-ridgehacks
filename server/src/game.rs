@@ -19,13 +19,10 @@ use euclid::{
     Angle,
 };
 
-use crate::Clients;
-use crate::{
-    entity::{
-        Kinematic, KinematicData, Player, PlayerCtrl, PlayerRepr, Projectile, ProjectileType,
-    },
-    Data,
+use crate::entity::{
+    Kinematic, KinematicData, Player, PlayerCtrl, PlayerRepr, Projectile, ProjectileType,
 };
+use crate::Clients;
 
 use warp::ws::Message;
 
