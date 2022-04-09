@@ -3,13 +3,19 @@
 	let socket;
 	let name;
 	function spawn() {
-		// post request here
+		fetch('http://127.0.0.1:9000', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+			body: JSON.stringify({ name: name })
+		}).then((res) => {
+			console.log('Request complete! response:', res);
+		});
 	}
+
 	onMount(() => {
-		socket = new WebSocket('ws://localhost:8000/ws');
+		socket = new WebSocket('ws://127.0.0.1:9001/ws');
 		socket.addEventListener('open', () => {
 			console.log('Opened');
-			socket.send('ping');
 		});
 		socket.addEventListener('message', (event) => {
 			console.log('Message', event);

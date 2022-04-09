@@ -44,13 +44,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         posts = warp::post()
             .and(json_body())
-            .and_then(|item: Item| GAME.initialize_player(item.name.to_string()));
+            .and_then(|item: Item| {
+                println!("{:?}", item);
+                GAME.initialize_player(item.name.to_string())
+            })
+            .with(warp::cors().allow_any_origin().allow_headers(vec!["access-control-allow-origin", "content-type"])
+            .allow_methods(vec!["POST"]));
     }
 
     // Start warp service
     println!("Starting server");
     tokio::join!(
-        warp::serve(routes).run(([127, 0, 0, 1], 8000)),
+        warp::serve(routes).run(([127, 0, 0, 1], 9001)),
         warp::serve(posts).run(([127, 0, 0, 1], 9000))
     );
 

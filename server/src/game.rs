@@ -25,6 +25,7 @@ use crate::entity::{
 use crate::Clients;
 
 use warp::ws::Message;
+use tokio::sync::Mutex;
 
 pub struct Game {
     pub players: Vec<Arc<RwLock<Player>>>,
@@ -35,7 +36,7 @@ pub struct Game {
 impl Game {
     pub async fn initialize_player(&mut self, docker: String) -> Result<String, warp::Rejection> {
         let mut cmd = Command::new("docker");
-        cmd.args(&["run", "-it", &docker])
+        cmd.args(&["run", "-i", &docker])
             .stdout(Stdio::piped())
             .stdin(Stdio::piped());
 
@@ -243,17 +244,23 @@ impl Game {
                 .await,
             );
 
+            println!("{:?}", json);
+
             match json {
                 Ok(data) => {
                     let locked = clients.lock().await;
                     for (_, client) in locked.iter() {
                         if let Some(sender) = &client.sender {
+                            println!("Sendng stuff");
                             let _ = sender.send(Ok(Message::text(data.clone())));
                         }
                     }
+                    drop(locked);
                 }
                 Err(error) => panic!("Json deserialization did not work: {}", error),
             }
+
+            println!("hi");
 
             // for stream in self.streams.iter_mut() {
             //     // stream.write_all();
