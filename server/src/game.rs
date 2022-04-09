@@ -175,7 +175,7 @@ impl Game {
 
                 if p.inputs.laser_bullet.unwrap_or(false) {
                     self.projectiles.push(Projectile {
-                        bullet: ProjectileType::Metal,
+                        bullet: ProjectileType::Laser,
                         kinematics: KinematicData {
                             location: p.kinematics.location
                                 + Vector2D::from_angle_and_length(
