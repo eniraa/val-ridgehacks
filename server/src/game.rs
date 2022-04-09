@@ -1,5 +1,4 @@
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
-use tokio::net::TcpStream;
 use tokio::process::{ChildStdout, Command};
 use tokio::time::{sleep, Duration};
 
@@ -21,7 +20,9 @@ use euclid::{
 };
 
 use crate::{
-    entity::{Kinematic, KinematicData, Player, PlayerCtrl, Projectile, ProjectileType},
+    entity::{
+        Kinematic, KinematicData, Player, PlayerCtrl, PlayerRepr, Projectile, ProjectileType,
+    },
     Data,
 };
 
@@ -32,7 +33,7 @@ pub struct Game {
 }
 
 impl Game {
-    pub async fn initialize_player(&mut self, docker: String) {
+    pub async fn initialize_player(&mut self, docker: String) -> Result<String, warp::Rejection> {
         let mut cmd = Command::new("docker");
         cmd.args(&["run", "-it", &docker])
             .stdout(Stdio::piped())
@@ -76,6 +77,7 @@ impl Game {
             player.clone(),
             child.stdout.take().unwrap(), // this needs to be seperate; we can't have the player be locked because we're reading from stdout
         ));
+        Ok("Success".to_string())
     }
 
     async fn process_player_input(player: Arc<RwLock<Player>>, stdout: ChildStdout) {
@@ -230,7 +232,12 @@ impl Game {
                     self.players
                         .clone()
                         .into_iter()
-                        .map(|player| async move { player.clone().read().await.kinematics })
+                        .map(|player| async move {
+                            PlayerRepr {
+                                name: player.clone().read().await.name.clone(),
+                                kinematics: player.clone().read().await.kinematics,
+                            }
+                        })
                         .collect::<Vec<_>>(),
                 )
                 .await,

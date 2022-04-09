@@ -29,6 +29,12 @@ pub struct PlayerCtrl {
     pub laser_bullet: Option<bool>,
 }
 
+#[derive(Clone, Serialize, Deserialize, Debug)]
+pub struct PlayerRepr {
+    pub name: String,
+    pub kinematics: KinematicData,
+}
+
 pub struct Player {
     pub kinematics: KinematicData,
     pub name: String,

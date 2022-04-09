@@ -5,15 +5,9 @@
 // use serde::{Deserialize, Serialize};
 // use tokio::sync::Mutex;
 
-use bytes;
-use futures::future::join_all;
 use std::{collections::HashMap, convert::Infallible, sync::Arc};
 use tokio::sync::{mpsc, Mutex};
-use warp::filters::BoxedFilter;
-use warp::{
-    ws::{Message, WebSocket},
-    Filter, Rejection, Reply,
-};
+use warp::{ws::Message, Filter, Rejection, Reply};
 
 mod entity;
 mod game;
@@ -47,18 +41,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     warp::serve(routes).run(([127, 0, 0, 1], 8000)).await;
 
     // testing
-    // unsafe {
-    //     tokio::spawn(GAME.physics(0.02, data.clone()));
+    unsafe {
+        tokio::spawn(GAME.physics(0.02, data.clone()));
 
-    //     // let loci = warp::path!("loci").map(|| json.clone());
-    //     let spawn = warp::path!("spawn" / String)
-    //         .and(warp::post())
-    //         .and_then(|x: String| GAME.initialize_player(x.to_string()));
-
-    //     // .map(|| json.clone());
-
-    //     // do this whenever there is a request to add a player
-    // }
+        let _ = warp::path!("spawn" / String)
+            .and(warp::post())
+            .and_then(|x: String| GAME.initialize_player(x.to_string()));
+    }
 
     Ok(())
 }
