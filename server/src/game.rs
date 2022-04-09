@@ -59,7 +59,7 @@ impl Game {
                 omega: Angle::radians(0.0),
                 alpha: 0.0,
             },
-            name: docker,
+            name: "[UNKNOWN]".to_string(),
             energy: 100.0,
             health: 100.0,
             stdin,
