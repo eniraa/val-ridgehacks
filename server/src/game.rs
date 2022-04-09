@@ -199,7 +199,7 @@ impl Game {
                     });
                 }
 
-                p.energy -= p.kinematics.acceleration.abs() + p.kinematics.alpha + 0.01;
+                p.energy -= p.kinematics.acceleration.abs() + p.kinematics.alpha.abs() + 0.01;
             }
 
             let mut kinematics_list = join_all(
