@@ -24,8 +24,8 @@ use crate::entity::{
 };
 use crate::Clients;
 
-use warp::ws::Message;
 use tokio::sync::Mutex;
+use warp::ws::Message;
 
 pub struct Game {
     pub players: Vec<Arc<RwLock<Player>>>,
@@ -115,6 +115,7 @@ impl Game {
 
     pub async fn physics(&mut self, dt: f64, clients: Clients) {
         loop {
+            println!("1");
             for projectile in self.projectiles.iter_mut() {
                 projectile.update(dt);
 
@@ -147,6 +148,7 @@ impl Game {
                 }
             }
 
+            println!("2");
             for player in self.players.iter_mut() {
                 let mut p = player.write().await;
                 p.update(dt);
@@ -209,7 +211,9 @@ impl Game {
             )
             .await;
 
+            println!("3");
             for player in self.players.iter_mut() {
+                println!("3.1");
                 let p = player.read().await;
                 kinematics_list.sort_by(|a, b| {
                     a.location
@@ -217,6 +221,8 @@ impl Game {
                         .partial_cmp(&b.location.distance_to(p.kinematics.location))
                         .unwrap()
                 });
+                println!("3.2");
+                drop(p);
 
                 let json = serde_json::to_string(&kinematics_list).unwrap();
 
@@ -226,6 +232,7 @@ impl Game {
                     .stdin
                     .write_all(format!("{}\n", base64::encode(json)).as_bytes())
                     .await;
+                println!("3.3");
             }
 
             let json = serde_json::to_string(
@@ -244,6 +251,7 @@ impl Game {
                 .await,
             );
 
+            println!("4");
             println!("{:?}", json);
 
             match json {
@@ -255,12 +263,11 @@ impl Game {
                             let _ = sender.send(Ok(Message::text(data.clone())));
                         }
                     }
-                    drop(locked);
                 }
                 Err(error) => panic!("Json deserialization did not work: {}", error),
             }
 
-            println!("hi");
+            println!("5");
 
             // for stream in self.streams.iter_mut() {
             //     // stream.write_all();
