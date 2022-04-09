@@ -20,12 +20,15 @@ use euclid::{
     Angle,
 };
 
-use crate::entity::{Kinematic, KinematicData, Player, PlayerCtrl, Projectile, ProjectileType};
+use crate::{
+    entity::{Kinematic, KinematicData, Player, PlayerCtrl, Projectile, ProjectileType},
+    Data,
+};
 
 pub struct Game {
     pub players: Vec<Arc<RwLock<Player>>>,
     pub projectiles: Vec<Projectile>,
-    pub streams: Vec<TcpStream>, // send stuff through stream on physics update
+    // pub streams: Vec<TcpStream>, // send stuff through stream on physics update
 }
 
 impl Game {
@@ -107,7 +110,7 @@ impl Game {
         }
     }
 
-    pub async fn physics(&mut self, dt: f64) {
+    pub async fn physics(&mut self, dt: f64, json_link: Data) {
         loop {
             for projectile in self.projectiles.iter_mut() {
                 projectile.update(dt);
@@ -222,9 +225,25 @@ impl Game {
                     .await;
             }
 
-            for stream in self.streams.iter_mut() {
-                // stream.write_all();
+            let json = serde_json::to_string(
+                &join_all(
+                    self.players
+                        .clone()
+                        .into_iter()
+                        .map(|player| async move { player.clone().read().await.kinematics })
+                        .collect::<Vec<_>>(),
+                )
+                .await,
+            );
+
+            match json {
+                Ok(data) => *json_link.lock().await = data,
+                Err(error) => panic!("Json deserialization did not work: {}", error),
             }
+
+            // for stream in self.streams.iter_mut() {
+            //     // stream.write_all();
+            // }
             sleep(Duration::from_secs_f64(dt)).await;
         }
     }
