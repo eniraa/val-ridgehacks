@@ -31,6 +31,8 @@ pub struct PlayerCtrl {
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct PlayerRepr {
+    pub energy: f64,
+    pub health: f64,
     pub name: String,
     pub kinematics: KinematicData,
 }

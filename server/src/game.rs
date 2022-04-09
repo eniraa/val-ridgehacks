@@ -242,6 +242,8 @@ impl Game {
                         .into_iter()
                         .map(|player| async move {
                             PlayerRepr {
+                                energy: player.clone().read().await.health.clone(),
+                                health: player.clone().read().await.health.clone(),
                                 name: player.clone().read().await.name.clone(),
                                 kinematics: player.clone().read().await.kinematics,
                             }
