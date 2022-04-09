@@ -1,11 +1,11 @@
-use crate::{Client, Clients, Data};
+use crate::{Client, Clients};
 use futures::{FutureExt, StreamExt};
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::UnboundedReceiverStream;
 use uuid::Uuid;
-use warp::ws::{Message, WebSocket};
+use warp::ws::WebSocket;
 
-pub async fn client_connection(ws: WebSocket, clients: Clients, json: Data) {
+pub async fn client_connection(ws: WebSocket, clients: Clients) {
     println!("establishing client connection... {:?}", ws);
     let (client_ws_sender, mut client_ws_rcv) = ws.split();
     let (client_sender, client_rcv) = mpsc::unbounded_channel();
@@ -22,7 +22,7 @@ pub async fn client_connection(ws: WebSocket, clients: Clients, json: Data) {
     };
     clients.lock().await.insert(uuid.clone(), new_client);
     while let Some(result) = client_ws_rcv.next().await {
-        let msg = match result {
+        let _ = match result {
             Ok(msg) => msg,
             Err(e) => {
                 println!("error receiving message for id {}): {}", uuid.clone(), e);
@@ -30,29 +30,9 @@ pub async fn client_connection(ws: WebSocket, clients: Clients, json: Data) {
             }
         };
 
-        client_msg(&uuid, msg, &clients, &json).await;
+        // Not really receiving messages
+        // client_msg(&uuid, msg, &clients, &json).await;
     }
     clients.lock().await.remove(&uuid);
     println!("{} disconnected", uuid);
-}
-async fn client_msg(client_id: &str, msg: Message, clients: &Clients, json: &Data) {
-    println!("received message from {}: {:?}", client_id, msg);
-    let message = match msg.to_str() {
-        Ok(v) => v,
-        Err(_) => return,
-    };
-    if message == "ping" || message == "ping\n" {
-        let locked = clients.lock().await;
-        match locked.get(client_id) {
-            Some(v) => {
-                if let Some(sender) = &v.sender {
-                    println!("sending data");
-                    let locked_json = json.lock().await;
-                    let _ = sender.send(Ok(Message::text(locked_json.to_string())));
-                }
-            }
-            None => return,
-        }
-        return;
-    };
 }

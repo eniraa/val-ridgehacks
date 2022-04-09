@@ -35,6 +35,7 @@ pub struct PlayerRepr {
     pub kinematics: KinematicData,
 }
 
+#[derive(Debug)]
 pub struct Player {
     pub kinematics: KinematicData,
     pub name: String,

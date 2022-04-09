@@ -19,12 +19,15 @@ use euclid::{
     Angle,
 };
 
+use crate::Clients;
 use crate::{
     entity::{
         Kinematic, KinematicData, Player, PlayerCtrl, PlayerRepr, Projectile, ProjectileType,
     },
     Data,
 };
+
+use warp::ws::Message;
 
 pub struct Game {
     pub players: Vec<Arc<RwLock<Player>>>,
@@ -112,7 +115,7 @@ impl Game {
         }
     }
 
-    pub async fn physics(&mut self, dt: f64, json_link: Data) {
+    pub async fn physics(&mut self, dt: f64, clients: Clients) {
         loop {
             for projectile in self.projectiles.iter_mut() {
                 projectile.update(dt);
@@ -244,7 +247,14 @@ impl Game {
             );
 
             match json {
-                Ok(data) => *json_link.lock().await = data,
+                Ok(data) => {
+                    let locked = clients.lock().await;
+                    for (_, client) in locked.iter() {
+                        if let Some(sender) = &client.sender {
+                            let _ = sender.send(Ok(Message::text(data.clone())));
+                        }
+                    }
+                }
                 Err(error) => panic!("Json deserialization did not work: {}", error),
             }
 
