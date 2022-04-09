@@ -48,8 +48,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 println!("{:?}", item);
                 GAME.initialize_player(item.name.to_string())
             })
-            .with(warp::cors().allow_any_origin().allow_headers(vec!["access-control-allow-origin", "content-type"])
-            .allow_methods(vec!["POST"]));
+            .with(
+                warp::cors()
+                    .allow_any_origin()
+                    .allow_headers(vec!["access-control-allow-origin", "content-type"])
+                    .allow_methods(vec!["POST"]),
+            );
     }
 
     // Start warp service
