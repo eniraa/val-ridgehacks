@@ -61,17 +61,19 @@
 <section class="bg-gradient-to-r from-sky-300 to-indigo-400 min-h-screen">
 	<div class="max-w-7xl min-h-screen mx-auto pt-20">
 		<h2 class="text-pink-100 text-center text-6xl">Featured Games</h2>
-		<div class="flex flex-row space-x-16"><a href="/dogfight">
-			<div class="relative box-content h-80 w-80 p-8 bg-slate-200 rounded-lg mt-20 z-0">
-				<div
-					class="absolute m-auto h-56 w-full p-8 rounded-lg z-10"
-					style="top: 1rem; right:-1rem; background-image:url(/dogfight.jpg); background-size: contain;"
-				/>
-				<p class="absolute z-10 top-64 text-lg">
-					<i>Dogfight</i><br /><br />Fly a spaceship and fight others, all while avoiding being shot
-					down yourself.
-				</p>
-			</div></a>
+		<div class="flex flex-row space-x-16">
+			<a href="/dogfight">
+				<div class="relative box-content h-80 w-80 p-8 bg-slate-200 rounded-lg mt-20 z-0">
+					<div
+						class="absolute m-auto h-56 w-full p-8 rounded-lg z-10"
+						style="top: 1rem; right:-1rem; background-image:url(/dogfight.jpg); background-size: contain;"
+					/>
+					<p class="absolute z-10 top-64 text-lg">
+						<i>Dogfight</i><br /><br />Fly a spaceship and fight others, all while avoiding being
+						shot down yourself.
+					</p>
+				</div></a
+			>
 			<div class="relative box-content h-80 w-80 p-8 bg-slate-200 rounded-lg mt-20 z-0">
 				<div
 					class="absolute m-auto h-56 w-full p-8 bg-slate-900 rounded-lg z-10"
