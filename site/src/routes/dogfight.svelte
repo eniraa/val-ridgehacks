@@ -10,6 +10,8 @@
 		}).then((res) => {
 			console.log('Request complete! response:', res);
 		});
+
+        name = "";
 	}
 
 	onMount(() => {
